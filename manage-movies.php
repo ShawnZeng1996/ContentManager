@@ -26,7 +26,7 @@ include 'menu.php';
             <div class="col-mb-12">
                 <ul class="typecho-option-tabs clearfix">
                     <li class="current"><a href="<?php $options->adminUrl('extending.php?panel=ContentManager/manage-movies.php'); ?>"><?php _e('电影管理'); ?></a></li>
-                    <li><a href="<?php $options->adminUrl('options-plugin.php?config=ContentManager'); ?>"><?php _e('设置'); ?></a></li>
+                    <!--li><a href="<?php $options->adminUrl('options-plugin.php?config=ContentManager'); ?>"><?php _e('设置'); ?></a></li-->
                     <li><a href="https://example.com/help" title="查看电影管理使用帮助" target="_blank"><?php _e('帮助'); ?></a></li>
                 </ul>
             </div>
@@ -67,7 +67,7 @@ include 'menu.php';
                                 <th></th>
                                 <th><?php _e('海报'); ?></th>
                                 <th><?php _e('电影名'); ?></th>
-                                <th><?php _e('id/dbid'); ?></th>
+                                <th><?php _e('id|豆瓣id'); ?></th>
                                 <th><?php _e('导演'); ?></th>
                                 <th><?php _e('演员'); ?></th>
                                 <th><?php _e('分类'); ?></th>
@@ -81,10 +81,10 @@ include 'menu.php';
                                     <tr id="movie-<?php echo $movie['id']; ?>">
                                         <td><input type="checkbox" value="<?php echo $movie['id']; ?>" name="id[]"/></td>
                                         <td><?php if ($movie['image_url']) { ?>
-                                                <img src="<?php echo $movie['image_url']; ?>" style="max-width: 50px; max-height: 80px;"/>
+                                                <img src="<?php echo $movie['image_url']; ?>" referrerpolicy="no-referrer" style="max-width: 50px; max-height: 80px;"/>
                                             <?php } ?></td>
                                         <td><?php echo $movie['name']; ?></td>
-                                        <td><?php echo $movie['id'] . ' / ' . $movie['douban_id']; ?></td>
+                                        <td><?php echo $movie['id'] . ' | ' . $movie['douban_id']; ?></td>
                                         <td><?php echo $movie['directors']; ?></td>
                                         <td><?php echo $movie['actors']; ?></td>
                                         <td><?php echo $movie['genres']; ?></td>
@@ -117,7 +117,7 @@ include 'menu.php';
             <div class="col-mb-12 col-tb-3" role="form">
                 <div class="typecho-mini-panel">
                     <form method="post" enctype="multipart/form-data" action="<?php $security->index('/action/movies-edit'); ?>">
-                        <input type="hidden" name="content-type" id="movie-id" value="movie">
+                        <input type="hidden" name="content-type" id="content-type" value="movie">
                         <input type="hidden" name="id" id="movie-id">
                         <input type="hidden" name="do" id="action" value="insert">
                         <ul class="typecho-option">
@@ -146,7 +146,7 @@ include 'menu.php';
                                 <label for="image_url" class="typecho-label"><?php _e('海报'); ?></label>
                                 <input type="text" id="image_url" name="image_url" class="text" required />
                                 <input type="file" name="image_file" id="image_file" accept="image/*" onchange="uploadImage(this)" /> <!-- 添加 onchange 事件 -->
-                                <img id="preview-image" src="" alt="Image Preview" style="width: 100px; display: none;">
+                                <img id="preview-image" src="" alt="Image Preview" referrerpolicy="no-referrer" style="width: 100px; display: none;">
                             </li>
                             <li>
                                 <label for="rating" class="typecho-label"><?php _e('评分'); ?></label>

@@ -1,0 +1,123 @@
+.movie-item, .book-item {
+    display: flex;
+    background-color: #F6F6F6;
+    margin: 5px 0;
+    padding: 10px;
+    align-items: center;
+}
+
+.movie-img, .book-img {
+    width: 80px;
+    height: 120px;
+    margin-right: 20px;
+}
+
+.movie-info .movie-name,
+.book-info .book-title {
+    margin: 0 0 10px;
+}
+
+.movie-info > span,
+.book-info > span {
+    display: block;
+    margin: 0;
+}
+
+.movie-info .movie-rating .rating,
+.book-info .book-rating .rating {
+    display: inline-block;
+}
+
+.movie-info .movie-rating .rating .stars-outer,
+.book-info .book-rating .rating .stars-outer{
+    position: relative;
+    display: inline-block;
+    unicode-bidi: bidi-override;
+    direction: ltr;
+    font-size: 18px;
+    line-height: 1;
+    color: #ccc;
+}
+
+.movie-info .movie-rating .rating .stars-outer::before,
+.movie-info .movie-rating .rating .stars-inner::before,
+.book-info .book-rating .rating .stars-outer::before,
+.book-info .book-rating .rating .stars-inner::before{
+    content: "\2605\2605\2605\2605\2605";
+}
+
+.movie-info .movie-rating .rating .stars-outer .stars-inner,
+.book-info .book-rating .rating .stars-outer .stars-inner{
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #FF8800;
+}
+
+.good-list {
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.good-list, .good-item {
+    display: flex;
+    align-items: center;
+}
+
+.good-item {
+    width: 32%;
+    min-width: 300px;
+    position: relative;
+    justify-content: center;
+    background: #F6F6F6;
+    padding: 50px 0 0;
+    flex-direction: column;
+    margin-bottom: 25px;
+}
+
+.good-img {
+    text-align: center;
+}
+
+.good-img img {
+    height: 120px;
+    width: auto;
+    max-width: 100%;
+}
+
+.good-meta {
+    font-size: 14px;
+    padding-bottom: 10px;
+    color: rgba(0, 0, 0, 0.8);
+    margin-top: 40px;
+    line-height: 1.4;
+    width: 92%;
+}
+
+.good-brand {
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.good-name {
+    display: flex;
+    align-items: center;
+}
+
+.good-price {
+    margin-left: auto;
+}
+
+@media (max-width: 800px) {
+    .good-item {
+        width: 48%;
+        min-width: 48%;
+    }
+}
+
+@media (max-width: 650px) {
+    .good-item {
+        width: 100%;
+    }
+}

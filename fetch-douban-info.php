@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 
 $info_type = $_GET['info_type'];
 $movie_id = $_GET['movie_id'];
+$book_id = $_GET['book_id'];
 $api_key = '0ab215a8b1977939201640fa14c66bab';
 $url = "";
 if (empty($info_type)) {
@@ -15,6 +16,13 @@ if (empty($info_type)) {
     if (empty($movie_id)) {
         http_response_code(400);
         echo json_encode(['error' => 'Missing movie ID']);
+        exit;
+    }
+} else if ($info_type === 'book') {
+    $url = "https://api.douban.com/v2/book/$book_id";
+    if (empty($book_id)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing book ID']);
         exit;
     }
 }
