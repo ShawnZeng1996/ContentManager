@@ -160,7 +160,7 @@ include 'menu.php';
                                 <label for="cover_url" class="typecho-label"><?php _e('封面*'); ?></label>
                                 <input type="text" id="cover_url" name="cover_url" class="text" required />
                                 <input type="file" name="image_file" id="image_file" accept="image/*" onchange="uploadImage(this)" /> <!-- 添加 onchange 事件 -->
-                                <img id="preview-image" src="" alt="Image Preview" style="width: 100px; display: none;">
+                                <img id="preview-image" src="" alt="Image Preview" referrerpolicy="no-referrer" style="width: 100px; display: none;">
                             </li>
                             <li>
                                 <label for="rating" class="typecho-label"><?php _e('评分*'); ?></label>
