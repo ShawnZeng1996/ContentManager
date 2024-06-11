@@ -317,7 +317,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         $price = !empty($good['price']) ? '￥' . htmlspecialchars($good['price']) : '';
         $specification = !empty($good['specification']) ? htmlspecialchars($good['specification']) : '';
         if ($price && $specification) {
-            $specification = ' / ' . $specification;
+            $price = ' / ' . $price;
         }
 
         return sprintf(
@@ -337,8 +337,8 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             htmlspecialchars($good['brand']),
             htmlspecialchars($good['category']),
             htmlspecialchars($good['name']),
-            $price,
-            $specification
+            $specification,
+            $price
         );
     }
 
