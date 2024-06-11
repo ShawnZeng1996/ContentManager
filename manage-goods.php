@@ -118,15 +118,15 @@ include 'menu.php';
                         <input type="hidden" name="do" id="action" value="insert">
                         <ul class="typecho-option">
                             <li>
-                                <label for="name" class="typecho-label"><?php _e('物品名称'); ?></label>
+                                <label for="name" class="typecho-label"><?php _e('物品名称*'); ?></label>
                                 <input type="text" id="name" name="name" class="text" required />
                             </li>
                             <li>
-                                <label for="brand" class="typecho-label"><?php _e('品牌'); ?></label>
+                                <label for="brand" class="typecho-label"><?php _e('品牌*'); ?></label>
                                 <input type="text" id="brand" name="brand" class="text" required />
                             </li>
                             <li>
-                                <label for="category" class="typecho-label"><?php _e('分类'); ?></label>
+                                <label for="category" class="typecho-label"><?php _e('分类*'); ?></label>
                                 <input type="text" id="category" name="category" class="text" required />
                             </li>
                             <li>
@@ -138,7 +138,7 @@ include 'menu.php';
                                 <input type="text" id="specification" name="specification" class="text"/>
                             </li>
                             <li>
-                                <label for="image_url" class="typecho-label"><?php _e('图片'); ?></label>
+                                <label for="image_url" class="typecho-label"><?php _e('图片*'); ?></label>
                                 <input type="text" id="image_url" name="image_url" class="text" required />
                                 <input type="file" name="image_file" id="image_file" accept="image/*" onchange="uploadImage(this)" /> <!-- 添加 onchange 事件 -->
                                 <img id="preview-image" src="" alt="Image Preview" style="width: 100px; display: none;">

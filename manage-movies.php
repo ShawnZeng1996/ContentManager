@@ -123,33 +123,33 @@ include 'menu.php';
                         <ul class="typecho-option">
                             <li>
                                 <label for="douban_id" class="typecho-label"><?php _e('豆瓣ID'); ?></label>
-                                <input type="text" id="douban_id" name="douban_id" class="text" required />
+                                <input type="text" id="douban_id" name="douban_id" class="text" />
                                 <button type="button" class="btn" onclick="fetchDoubanInfo()">获取电影信息</button> <!-- 新增按钮 -->
                             </li>
                             <li>
-                                <label for="name" class="typecho-label"><?php _e('电影名'); ?></label>
+                                <label for="name" class="typecho-label"><?php _e('电影名*'); ?></label>
                                 <input type="text" id="name" name="name" class="text" required />
                             </li>
                             <li>
-                                <label for="directors" class="typecho-label"><?php _e('导演'); ?></label>
+                                <label for="directors" class="typecho-label"><?php _e('导演*'); ?></label>
                                 <input type="text" id="directors" name="directors" class="text" required />
                             </li>
                             <li>
-                                <label for="actors" class="typecho-label"><?php _e('演员'); ?></label>
+                                <label for="actors" class="typecho-label"><?php _e('演员*'); ?></label>
                                 <input type="text" id="actors" name="actors" class="text" required />
                             </li>
                             <li>
-                                <label for="genres" class="typecho-label"><?php _e('分类'); ?></label>
+                                <label for="genres" class="typecho-label"><?php _e('分类*'); ?></label>
                                 <input type="text" id="genres" name="genres" class="text" required />
                             </li>
                             <li>
-                                <label for="image_url" class="typecho-label"><?php _e('海报'); ?></label>
+                                <label for="image_url" class="typecho-label"><?php _e('海报*'); ?></label>
                                 <input type="text" id="image_url" name="image_url" class="text" required />
                                 <input type="file" name="image_file" id="image_file" accept="image/*" onchange="uploadImage(this)" /> <!-- 添加 onchange 事件 -->
                                 <img id="preview-image" src="" alt="Image Preview" referrerpolicy="no-referrer" style="width: 100px; display: none;">
                             </li>
                             <li>
-                                <label for="rating" class="typecho-label"><?php _e('评分'); ?></label>
+                                <label for="rating" class="typecho-label"><?php _e('评分*'); ?></label>
                                 <input type="number" step="0.1" id="rating" name="rating" class="text" style="background: #FFF;border: 1px solid #D9D9D6;padding: 7px;border-radius: 2px;box-sizing: border-box;" required />
                             </li>
                         </ul>

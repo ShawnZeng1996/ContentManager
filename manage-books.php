@@ -126,19 +126,19 @@ include 'menu.php';
                         <ul class="typecho-option">
                             <li>
                                 <label for="douban_id" class="typecho-label"><?php _e('豆瓣ID'); ?></label>
-                                <input type="text" id="douban_id" name="douban_id" class="text" required />
+                                <input type="text" id="douban_id" name="douban_id" class="text"/>
                                 <button type="button" class="btn" onclick="fetchDoubanInfo()">获取书籍信息</button> <!-- 新增按钮 -->
                             </li>
                             <li>
-                                <label for="title" class="typecho-label"><?php _e('书名'); ?></label>
+                                <label for="title" class="typecho-label"><?php _e('书名*'); ?></label>
                                 <input type="text" id="title" name="title" class="text" required />
                             </li>
                             <li>
-                                <label for="author" class="typecho-label"><?php _e('作者'); ?></label>
+                                <label for="author" class="typecho-label"><?php _e('作者*'); ?></label>
                                 <input type="text" id="author" name="author" class="text" required />
                             </li>
                             <li>
-                                <label for="publisher" class="typecho-label"><?php _e('出版社'); ?></label>
+                                <label for="publisher" class="typecho-label"><?php _e('出版社*'); ?></label>
                                 <input type="text" id="publisher" name="publisher" class="text" required />
                             </li>
                             <li>
@@ -154,17 +154,17 @@ include 'menu.php';
                                 <input type="text" id="translator" name="translator" class="text" />
                             </li>
                             <li>
-                                <label for="pubdate" class="typecho-label"><?php _e('出版年'); ?></label>
+                                <label for="pubdate" class="typecho-label"><?php _e('出版年*'); ?></label>
                                 <input type="text" id="pubdate" name="pubdate" class="text" required />
                             </li>
                             <li>
-                                <label for="cover_url" class="typecho-label"><?php _e('封面'); ?></label>
+                                <label for="cover_url" class="typecho-label"><?php _e('封面*'); ?></label>
                                 <input type="text" id="cover_url" name="cover_url" class="text" required />
                                 <input type="file" name="image_file" id="image_file" accept="image/*" onchange="uploadImage(this)" /> <!-- 添加 onchange 事件 -->
                                 <img id="preview-image" src="" alt="Image Preview" style="width: 100px; display: none;">
                             </li>
                             <li>
-                                <label for="rating" class="typecho-label"><?php _e('评分'); ?></label>
+                                <label for="rating" class="typecho-label"><?php _e('评分*'); ?></label>
                                 <input type="number" step="0.1" id="rating" name="rating" class="text" style="background: #FFF;border: 1px solid #D9D9D6;padding: 7px;border-radius: 2px;box-sizing: border-box;" required />
                             </li>
                         </ul>
