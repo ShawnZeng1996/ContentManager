@@ -26,8 +26,7 @@ include 'menu.php';
             <div class="col-mb-12">
                 <ul class="typecho-option-tabs clearfix">
                     <li class="current"><a href="<?php $options->adminUrl('extending.php?panel=ContentManager/manage-goods.php'); ?>"><?php _e('好物管理'); ?></a></li>
-                    <li><a href="<?php $options->adminUrl('options-plugin.php?config=ContentManager'); ?>"><?php _e('设置'); ?></a></li>
-                    <li><a href="https://example.com/help" title="查看好物管理使用帮助" target="_blank"><?php _e('帮助'); ?></a></li>
+                    <li><a href="https://shawnzeng.com/index.php/archives/3/" title="查看好物管理使用帮助" target="_blank"><?php _e('帮助'); ?></a></li>
                 </ul>
             </div>
 
@@ -54,6 +53,7 @@ include 'menu.php';
                             <colgroup>
                                 <col width="20">
                                 <col width="15%">
+                                <col width="3%">
                                 <col width="15%">
                                 <col width="15%">
                                 <col width="13%">
@@ -65,6 +65,7 @@ include 'menu.php';
                             <tr>
                                 <th></th>
                                 <th><?php _e('图片'); ?></th>
+                                <th><?php _e('id'); ?></th>
                                 <th><?php _e('物品名称'); ?></th>
                                 <th><?php _e('品牌'); ?></th>
                                 <th><?php _e('分类'); ?></th>
@@ -81,6 +82,7 @@ include 'menu.php';
                                         <td><?php if ($good['image_url']) { ?>
                                                 <img src="<?php echo $good['image_url']; ?>" style="max-width: 50px; max-height: 80px;"/>
                                             <?php } ?></td>
+                                        <td><?php echo $good['id']; ?></td>
                                         <td><?php echo $good['name']; ?></td>
                                         <td><?php echo $good['brand']; ?></td>
                                         <td><?php echo $good['category']; ?></td>

@@ -26,8 +26,7 @@ include 'menu.php';
             <div class="col-mb-12">
                 <ul class="typecho-option-tabs clearfix">
                     <li class="current"><a href="<?php $options->adminUrl('extending.php?panel=ContentManager/manage-books.php'); ?>"><?php _e('书籍管理'); ?></a></li>
-                    <!--li><a href="<?php $options->adminUrl('options-plugin.php?config=ContentManager'); ?>"><?php _e('设置'); ?></a></li-->
-                    <li><a href="https://example.com/help" title="查看书籍管理使用帮助" target="_blank"><?php _e('帮助'); ?></a></li>
+                    <li><a href="https://shawnzeng.com/index.php/archives/3/" title="查看书籍管理使用帮助" target="_blank"><?php _e('帮助'); ?></a></li>
                 </ul>
             </div>
 
