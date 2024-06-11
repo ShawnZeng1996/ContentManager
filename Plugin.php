@@ -81,7 +81,8 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         $result = $db->fetchRow($sql);
         if (!$result) {
             // 添加post_type字段
-            $sql = "ALTER TABLE `{$prefix}contents` ADD `post_type` VARCHAR(255) DEFAULT 'post'";
+            //$sql = "ALTER TABLE `{$prefix}contents` ADD `post_type` VARCHAR(255) DEFAULT 'post'";
+            $sql = "ALTER TABLE `{$prefix}contents` ADD `post_type` VARCHAR(255)";
             $db->query($sql);
         }
 
@@ -96,10 +97,9 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         // 在文章保存时触发
         Typecho_Plugin::factory('Widget_Contents_Post_Edit')->write = array('ContentManager_Plugin', 'savePostType');
         // 过滤文章内容
-        Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('ContentManager_Plugin', 'filterContent');
+        //Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx_10 = array('ContentManager_Plugin', 'filterContent');
         // 添加钩子，修改文章编辑页面
         Typecho_Plugin::factory('admin/write-post.php')->option = array('ContentManager_Plugin', 'renderPostTypeSelect');
-
         return _t('ContentManager 插件已激活');
     }
 
@@ -158,39 +158,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
                 $movie = $db->fetchRow($query);
 
                 if ($movie) {
-                    // 将 rating 转换为浮点数
-                    $rating = floatval($movie['rating']);
-                    // 计算 stars-inner 的宽度
-                    $ratingPercentage = ($rating / 10) * 100;
-
-                    // 返回电影信息的HTML
-                    $html .= sprintf(
-                        '<div class="movie-item">
-                    <img src="%s" alt="%s" class="movie-img" referrerpolicy="no-referrer" />
-                    <div class="movie-info">
-                        <h3 class="movie-name">%s</h3>
-                        <span class="movie-directors"><strong>导演：</strong>%s</span>
-                        <span class="movie-actors"><strong>演员：</strong>%s</span>
-                        <span class="movie-genres"><strong>分类：</strong>%s</span>
-                        <div class="movie-rating"><strong>评分：</strong>
-                            <div class="rating">
-                                <div class="stars-outer">
-                                    <div class="stars-inner" style="width:%s%%;"></div>
-                                </div>
-                            </div>
-                            %s
-                        </div>
-                    </div>
-                </div>',
-                        htmlspecialchars($movie['image_url']),
-                        htmlspecialchars($movie['name']),
-                        htmlspecialchars($movie['name']),
-                        htmlspecialchars($movie['directors']),
-                        htmlspecialchars($movie['actors']),
-                        htmlspecialchars($movie['genres']),
-                        htmlspecialchars($ratingPercentage),
-                        htmlspecialchars($movie['rating'])
-                    );
+                    $html .= self::buildMovieHtml($movie);
                 } else {
                     $html .= '<p>未找到电影信息</p>';
                 }
@@ -214,50 +182,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
                 $book = $db->fetchRow($query);
 
                 if ($book) {
-                    // 将 rating 转换为浮点数
-                    $rating = floatval($book['rating']);
-                    // 计算 stars-inner 的宽度
-                    $ratingPercentage = ($rating / 10) * 100;
-
-                    // 构建书籍信息的HTML
-                    $subtitle = !empty($book['subtitle']) ? '<span class="book-subtitle"><strong>副标题：</strong>' . htmlspecialchars($book['subtitle']) . '</span>' : '';
-                    $originTitle = !empty($book['origin_title']) ? '<span class="book-origin-title"><strong>原作名：</strong>' . htmlspecialchars($book['origin_title']) . '</span>' : '';
-                    $translator = !empty($book['translator']) ? '<span class="book-translator"><strong>译者：</strong>' . htmlspecialchars($book['translator']) . '</span>' : '';
-
-                    // 返回书籍信息的HTML
-                    $html .= sprintf(
-                        '<div class="book-item">
-                    <img src="%s" alt="%s" class="book-img" referrerpolicy="no-referrer" />
-                    <div class="book-info">
-                        <h3 class="book-title">%s</h3>
-                        <span class="book-author"><strong>作者：</strong>%s</span>
-                        <span class="book-publisher"><strong>出版社：</strong>%s</span>
-                        %s
-                        %s
-                        %s
-                        <span class="book-pubdate"><strong>出版年：</strong>%s</span>
-                        <div class="book-rating"><strong>评分：</strong>
-                            <div class="rating">
-                                <div class="stars-outer">
-                                    <div class="stars-inner" style="width:%s%%;"></div>
-                                </div>
-                            </div>
-                            %s
-                        </div>
-                    </div>
-                </div>',
-                        htmlspecialchars($book['cover_url']),
-                        htmlspecialchars($book['title']),
-                        htmlspecialchars($book['title']),
-                        htmlspecialchars($book['author']),
-                        htmlspecialchars($book['publisher']),
-                        $subtitle,
-                        $originTitle,
-                        $translator,
-                        htmlspecialchars($book['pubdate']),
-                        htmlspecialchars($ratingPercentage),
-                        htmlspecialchars($book['rating'])
-                    );
+                    $html .= self::buildBookHtml($book);
                 } else {
                     $html .= '<p>未找到书籍信息</p>';
                 }
@@ -274,7 +199,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
 
             if (isset($matches[1])) {
                 $ids = explode(',', $matches[1]);
-                $html = '<div class="good-list">';
+                $html .= '<div class="good-list">';
                 foreach ($ids as $goodId) {
                     $goodId = trim($goodId);
 
@@ -283,68 +208,25 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
                     $good = $db->fetchRow($query);
 
                     if ($good) {
-                        // 返回好物信息的HTML
-                        $html .= sprintf(
-                            '<div class="good-item">
-                    <img src="%s" alt="%s" class="good-img" referrerpolicy="no-referrer" />
-                    <div class="good-info">
-                        <h3 class="good-name">%s</h3>
-                        <span class="good-brand"><strong>品牌：</strong>%s</span>
-                        <span class="good-category"><strong>分类：</strong>%s</span>
-                        <span class="good-price"><strong>价格：</strong>%s</span>
-                    </div>
-                </div>',
-                            htmlspecialchars($good['image_url']),
-                            htmlspecialchars($good['name']),
-                            htmlspecialchars($good['name']),
-                            htmlspecialchars($good['brand']),
-                            htmlspecialchars($good['category']),
-                            htmlspecialchars($good['price'])
-                        );
+                        $html .= self::buildGoodHtml($good);
                     } else {
                         $html .= '<p>未找到好物信息</p>';
                     }
                 }
+                $html .= '</div>';
             } else {
                 // 获取所有好物信息
                 $query = $db->select()->from($prefix . 'goods')->order($prefix . 'goods.id', Typecho_Db::SORT_ASC);
                 $goods = $db->fetchAll($query);
-                $html = '<div class="good-list">';
-
-                foreach ($goods as $good) {
-                    // 构建好物信息的HTML
-                    $price = !empty($good['price']) ? '￥' . htmlspecialchars($good['price']) : '';
-                    $specification = !empty($good['specification']) ? htmlspecialchars($good['specification']) : '';
-
-                    // 如果价格和规格都存在，添加分隔符
-                    if ($price && $specification) {
-                        $specification = ' / ' . $specification;
+                if (!empty($goods)) {
+                    $html .= '<div class="good-list">';
+                    foreach ($goods as $good) {
+                        $html .= self::buildGoodHtml($good);
                     }
-
-                    // 返回好物信息的HTML
-                    $html .= sprintf(
-                        '<div class="good-item">
-                                    <div class="good-img">
-                                        <img src="%s" alt="%s" />
-                                    </div>
-                                    <div class="good-meta">
-                                        <div class="good-brand good-category">%s · %s</div>
-                                        <div class="good-name">%s
-                                            <span class="good-price good-specification">%s%s</span>
-                                        </div> 
-                                    </div>
-                                </div>',
-                        htmlspecialchars($good['image_url']),
-                        htmlspecialchars($good['name']),
-                        htmlspecialchars($good['brand']),
-                        htmlspecialchars($good['category']),
-                        htmlspecialchars($good['name']),
-                        $price,
-                        $specification
-                    );
+                    $html .= '</div>';
+                } else {
+                    $html .= '<p>未找到好物信息</p>';
                 }
-
-                $html .= '</div>';
             }
 
             return $html;
@@ -353,6 +235,114 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         return $content;
     }
 
+    private static function buildMovieHtml($movie)
+    {
+        $rating = floatval($movie['rating']);
+        $ratingPercentage = ($rating / 10) * 100;
+
+        return sprintf(
+            '<div class="movie-item">
+            <img src="%s" alt="%s" class="movie-img" referrerpolicy="no-referrer" />
+            <div class="movie-info">
+                <h3 class="movie-name">%s</h3>
+                <span class="movie-directors"><strong>导演：</strong>%s</span>
+                <span class="movie-actors"><strong>演员：</strong>%s</span>
+                <span class="movie-genres"><strong>分类：</strong>%s</span>
+                <div class="movie-rating"><strong>评分：</strong>
+                    <div class="rating">
+                        <div class="stars-outer">
+                            <div class="stars-inner" style="width:%s%%;"></div>
+                        </div>
+                    </div>
+                    %s
+                </div>
+            </div>
+        </div>',
+            htmlspecialchars($movie['image_url']),
+            htmlspecialchars($movie['name']),
+            htmlspecialchars($movie['name']),
+            htmlspecialchars($movie['directors']),
+            htmlspecialchars($movie['actors']),
+            htmlspecialchars($movie['genres']),
+            htmlspecialchars($ratingPercentage),
+            htmlspecialchars($movie['rating'])
+        );
+    }
+
+    private static function buildBookHtml($book)
+    {
+        $rating = floatval($book['rating']);
+        $ratingPercentage = ($rating / 10) * 100;
+        $subtitle = !empty($book['subtitle']) ? '<span class="book-subtitle"><strong>副标题：</strong>' . htmlspecialchars($book['subtitle']) . '</span>' : '';
+        $originTitle = !empty($book['origin_title']) ? '<span class="book-origin-title"><strong>原作名：</strong>' . htmlspecialchars($book['origin_title']) . '</span>' : '';
+        $translator = !empty($book['translator']) ? '<span class="book-translator"><strong>译者：</strong>' . htmlspecialchars($book['translator']) . '</span>' : '';
+
+        return sprintf(
+            '<div class="book-item">
+            <img src="%s" alt="%s" class="book-img" referrerpolicy="no-referrer" />
+            <div class="book-info">
+                <h3 class="book-title">%s</h3>
+                <span class="book-author"><strong>作者：</strong>%s</span>
+                <span class="book-publisher"><strong>出版社：</strong>%s</span>
+                %s
+                %s
+                %s
+                <span class="book-pubdate"><strong>出版年：</strong>%s</span>
+                <div class="book-rating"><strong>评分：</strong>
+                    <div class="rating">
+                        <div class="stars-outer">
+                            <div class="stars-inner" style="width:%s%%;"></div>
+                        </div>
+                    </div>
+                    %s
+                </div>
+            </div>
+        </div>',
+            htmlspecialchars($book['cover_url']),
+            htmlspecialchars($book['title']),
+            htmlspecialchars($book['title']),
+            htmlspecialchars($book['author']),
+            htmlspecialchars($book['publisher']),
+            $subtitle,
+            $originTitle,
+            $translator,
+            htmlspecialchars($book['pubdate']),
+            htmlspecialchars($ratingPercentage),
+            htmlspecialchars($book['rating'])
+        );
+    }
+
+    private static function buildGoodHtml($good)
+    {
+        $price = !empty($good['price']) ? '￥' . htmlspecialchars($good['price']) : '';
+        $specification = !empty($good['specification']) ? htmlspecialchars($good['specification']) : '';
+        if ($price && $specification) {
+            $specification = ' / ' . $specification;
+        }
+
+        return sprintf(
+            '<div class="good-item">
+            <div class="good-img">
+                <img src="%s" alt="%s" />
+            </div>
+            <div class="good-meta">
+                <div class="good-brand good-category">%s · %s</div>
+                <div class="good-name">%s
+                    <span class="good-price good-specification">%s%s</span>
+                </div> 
+            </div>
+        </div>',
+            htmlspecialchars($good['image_url']),
+            htmlspecialchars($good['name']),
+            htmlspecialchars($good['brand']),
+            htmlspecialchars($good['category']),
+            htmlspecialchars($good['name']),
+            $price,
+            $specification
+        );
+    }
+
+
     public static function renderPostTypeSelect()
     {
         $options = [
@@ -360,23 +350,62 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             'shuoshuo' => '说说',
         ];
 
-        $post_type = Typecho_Widget::widget('Widget_Contents_Post_Edit')->post_type ?? 'post';
-        echo '<p class="description">';
-        echo '<label for="post_type">' . _t('文章类型') . '</label>';
-        echo '<select name="post_type" id="post_type" class="w-100">';
+        // 获取当前编辑的文章对象
+        $widget = Typecho_Widget::widget('Widget_Contents_Post_Edit');
+        $db = Typecho_Db::get();
+        $prefix = $db->getPrefix();
+
+        // 从数据库中获取当前文章的 post_type
+        $postTypeQuery = $db->select('post_type')
+            ->from($prefix . 'contents')
+            ->where('cid = ?', $widget->cid);
+        $post_type = $db->fetchRow($postTypeQuery)['post_type'] ?? 'post';
+
+
+        echo '<section class="typecho-post-option">'.$post_type;
+        echo '<label for="post_type" class="typecho-label">' . _t('文章类型') . '</label>';
+        echo '<p><select name="post_type" id="post_type">';
         foreach ($options as $value => $label) {
             $selected = $post_type === $value ? 'selected' : '';
             echo '<option value="' . $value . '" ' . $selected . '>' . $label . '</option>';
         }
-        echo '</select>';
-        echo '</p>';
+        echo '</select></p>';
+        echo '</section>';
     }
+
 
     public static function savePostType($contents, $class)
     {
-        $request = Typecho_Request::getInstance();
-        $post_type = $request->get('post_type', 'post');
+        $post_type = $class->request->get('post_type', 'post');
         $contents['post_type'] = $post_type;
+
+        // 日志记录 'do' 和 'post_type'
+        error_log('do: ' . $class->request->get('do'));
+        error_log('post_type: ' . $post_type);
+
+        // 数据库操作
+        $db = Typecho_Db::get();
+        $prefix = $db->getPrefix();
+
+        // 获取文章ID
+        $cid = $class->cid;
+
+        // 如果没有文章ID，则表示是新增文章，需要在插入后更新 post_type 字段
+        if (!$cid) {
+            $cid = $class->insert($contents);
+            $class->db->fetchRow(
+                $class->select()->where('table.contents.cid = ?', $cid)->limit(1),
+                [$class, 'push']
+            );
+        }
+
+        if ($cid) {
+            // 更新数据库中的 post_type 字段
+            $db->query($db->update($prefix . 'contents')
+                ->rows(array('post_type' => $post_type))
+                ->where('cid = ?', $cid));
+        }
+
         return $contents;
     }
 
