@@ -3,7 +3,7 @@
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 
 /**
- * Typecho内容扩展插件，支持🎬电影、📚书籍、🛍️我的好物的管理，同时扩充文章类型支持💬说说。电影、书籍支持从豆瓣导入信息，本地化存储。
+ * Typecho内容扩展插件，支持🎬电影、📚书籍、🛍️我的好物的管理。电影、书籍支持从豆瓣导入信息，本地化存储。
  *
  * @package ContentManager
  * @author Shawn
@@ -76,15 +76,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             $db->query($sql);
         }
 
-        // 检查是否已有post_type字段
-        $sql = "SHOW COLUMNS FROM `{$prefix}contents` LIKE 'post_type'";
-        $result = $db->fetchRow($sql);
-        if (!$result) {
-            // 添加post_type字段
-            //$sql = "ALTER TABLE `{$prefix}contents` ADD `post_type` VARCHAR(255) DEFAULT 'post'";
-            $sql = "ALTER TABLE `{$prefix}contents` ADD `post_type` VARCHAR(255)";
-            $db->query($sql);
-        }
+
 
         Helper::addPanel(3, 'ContentManager/manage-books.php', '书籍', '管理书籍', 'administrator');
         Helper::addPanel(3, 'ContentManager/manage-movies.php', '电影', '管理电影', 'administrator');
@@ -94,12 +86,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         Helper::addAction('goods-edit','ContentManager_Action');
         // 注册内容解析钩子
         Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('ContentManager_Plugin', 'parseContentShortcode');
-        // 在文章保存时触发
-        Typecho_Plugin::factory('Widget_Contents_Post_Edit')->write = array('ContentManager_Plugin', 'savePostType');
-        // 过滤文章内容
-        //Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx_10 = array('ContentManager_Plugin', 'filterContent');
-        // 添加钩子，修改文章编辑页面
-        Typecho_Plugin::factory('admin/write-post.php')->option = array('ContentManager_Plugin', 'renderPostTypeSelect');
+
         return _t('ContentManager 插件已激活');
     }
 
@@ -116,6 +103,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
 
     public static function config(Typecho_Widget_Helper_Form $form)
     {
+
     }
 
     public static function personalConfig(Typecho_Widget_Helper_Form $form)
@@ -340,83 +328,6 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             $specification,
             $price
         );
-    }
-
-
-    public static function renderPostTypeSelect()
-    {
-        $options = [
-            'post' => '文章',
-            'shuoshuo' => '说说',
-        ];
-
-        // 获取当前编辑的文章对象
-        $widget = Typecho_Widget::widget('Widget_Contents_Post_Edit');
-        $db = Typecho_Db::get();
-        $prefix = $db->getPrefix();
-
-        // 从数据库中获取当前文章的 post_type
-        $postTypeQuery = $db->select('post_type')
-            ->from($prefix . 'contents')
-            ->where('cid = ?', $widget->cid);
-        $post_type = $db->fetchRow($postTypeQuery)['post_type'] ?? 'post';
-
-
-        echo '<section class="typecho-post-option">'.$post_type;
-        echo '<label for="post_type" class="typecho-label">' . _t('文章类型') . '</label>';
-        echo '<p><select name="post_type" id="post_type">';
-        foreach ($options as $value => $label) {
-            $selected = $post_type === $value ? 'selected' : '';
-            echo '<option value="' . $value . '" ' . $selected . '>' . $label . '</option>';
-        }
-        echo '</select></p>';
-        echo '</section>';
-    }
-
-
-    public static function savePostType($contents, $class)
-    {
-        $post_type = $class->request->get('post_type', 'post');
-        $contents['post_type'] = $post_type;
-
-        // 日志记录 'do' 和 'post_type'
-        error_log('do: ' . $class->request->get('do'));
-        error_log('post_type: ' . $post_type);
-
-        // 数据库操作
-        $db = Typecho_Db::get();
-        $prefix = $db->getPrefix();
-
-        // 获取文章ID
-        $cid = $class->cid;
-
-        // 如果没有文章ID，则表示是新增文章，需要在插入后更新 post_type 字段
-        if (!$cid) {
-            $cid = $class->insert($contents);
-            $class->db->fetchRow(
-                $class->select()->where('table.contents.cid = ?', $cid)->limit(1),
-                [$class, 'push']
-            );
-        }
-
-        if ($cid) {
-            // 更新数据库中的 post_type 字段
-            $db->query($db->update($prefix . 'contents')
-                ->rows(array('post_type' => $post_type))
-                ->where('cid = ?', $cid));
-        }
-
-        return $contents;
-    }
-
-    public static function filterContent($content, $widget, $last)
-    {
-        if ($widget->post_type == 'shuoshuo') {
-            // 根据需求展示说说的内容
-            $content = '<div class="shuoshuo-content">' . $content . '</div>';
-        }
-
-        return $content;
     }
 
 }
