@@ -194,7 +194,12 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
 
             if (isset($matches[1])) {
                 $ids = explode(',', $matches[1]);
-                $html .= '<div class="good-list">';
+                if (count($ids) == 1) {
+                    $html .= '<div class="good-list good-list-single">';
+                } else {
+                    $html .= '<div class="good-list">';
+                }
+
                 foreach ($ids as $goodId) {
                     $goodId = trim($goodId);
 
@@ -226,6 +231,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
 
             return $html;
         }, $content);
+
 
         return $content;
     }

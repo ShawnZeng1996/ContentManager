@@ -62,6 +62,10 @@
     margin-top: 10px;
 }
 
+.good-list.good-list-single {
+    justify-content: flex-start;
+}
+
 .good-list, .good-item {
     display: flex;
     align-items: center;
