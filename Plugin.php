@@ -115,9 +115,16 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
      */
     public static function addCss()
     {
+        static $cssLoaded = false;
+        if ($cssLoaded) {
+            return;
+        }
+
         $cssUrl = Helper::options()->pluginUrl . '/ContentManager/contentmanager.css';
         echo '<link rel="stylesheet" type="text/css" href="' . $cssUrl . '" />';
+        $cssLoaded = true;
     }
+
 
     /**
      * 电影和书籍短代码解析
