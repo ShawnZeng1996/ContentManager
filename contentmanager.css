@@ -58,7 +58,8 @@
 
 .good-list {
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-evenly;
+    margin-top: 10px;
 }
 
 .good-list, .good-item {
