@@ -10,7 +10,7 @@ class ContentManager_Action extends Typecho_Widget implements Widget_Interface_D
     public function uploadImage()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image_file'])) {
-            $upload_dir = __TYPECHO_ROOT_DIR__ . '/usr/uploads/movies/';
+            $upload_dir = __TYPECHO_ROOT_DIR__ . '/usr/uploads/img/';
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0777, true);
             }
@@ -20,7 +20,7 @@ class ContentManager_Action extends Typecho_Widget implements Widget_Interface_D
 
             if (move_uploaded_file($_FILES['image_file']['tmp_name'], $target_file)) {
                 chmod($target_file, 0666); // 设置文件权限为可读写
-                $image_url = Typecho_Common::url('usr/uploads/movies/' . $file_name, Helper::options()->siteUrl);
+                $image_url = Typecho_Common::url('usr/uploads/img/' . $file_name, Helper::options()->siteUrl);
                 echo $image_url; // 返回图像URL
                 exit; // 终止脚本
             } else {
