@@ -59,7 +59,6 @@
 .good-list {
     flex-wrap: wrap;
     justify-content: space-evenly;
-    margin-top: 10px;
 }
 
 .good-list.good-list-single {
@@ -79,7 +78,7 @@
     background: #F6F6F6;
     padding: 50px 0 0;
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .good-img {
