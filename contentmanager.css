@@ -14,7 +14,7 @@
 
 .movie-info .movie-name,
 .book-info .book-title {
-    margin: 0 0 10px;
+    margin: 0!important;
 }
 
 .movie-info > span,
