@@ -86,6 +86,8 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         Helper::addAction('goods-edit','ContentManager_Action');
         // 注册内容解析钩子
         Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('ContentManager_Plugin', 'parseContentShortcode');
+        // 插件激活时加载CSS
+        Typecho_Plugin::factory('Widget_Archive')->header = array('ContentManager_Plugin', 'addCss');
 
         return _t('ContentManager 插件已激活');
     }
@@ -115,14 +117,8 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
      */
     public static function addCss()
     {
-        static $cssLoaded = false;
-        if ($cssLoaded) {
-            return;
-        }
-
         $cssUrl = Helper::options()->pluginUrl . '/ContentManager/contentmanager.css';
         echo '<link rel="stylesheet" type="text/css" href="' . $cssUrl . '" />';
-        $cssLoaded = true;
     }
 
 
@@ -135,8 +131,6 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
      */
     public static function parseContentShortcode($content, $widget, $last)
     {
-        // 加载 CSS 文件
-        self::addCss();
 
         // 匹配电影短代码 [movie id=1,2,3]
         $content = preg_replace_callback('/\[movie id=([\d,]+)\]/', function($matches) {
