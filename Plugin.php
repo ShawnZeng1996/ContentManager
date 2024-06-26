@@ -239,7 +239,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             '<div class="movie-item">
             <img src="%s" alt="%s" class="movie-img" referrerpolicy="no-referrer" />
             <div class="movie-info">
-                <h3 class="movie-name">%s</h3>
+                <h3 class="movie-name"><a href="https://movie.douban.com/subject/%s/">%s</a></h3>
                 <span class="movie-directors"><strong>导演：</strong>%s</span>
                 <span class="movie-actors"><strong>演员：</strong>%s</span>
                 <span class="movie-genres"><strong>分类：</strong>%s</span>
@@ -255,6 +255,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         </div>',
             htmlspecialchars($movie['image_url']),
             htmlspecialchars($movie['name']),
+            htmlspecialchars($movie['douban_id']),
             htmlspecialchars($movie['name']),
             htmlspecialchars($movie['directors']),
             htmlspecialchars($movie['actors']),
@@ -276,7 +277,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             '<div class="book-item">
             <img src="%s" alt="%s" class="book-img" referrerpolicy="no-referrer" />
             <div class="book-info">
-                <h3 class="book-title">%s</h3>
+                <h3 class="book-title"><a href="https://book.douban.com/subject/%s/">%s</a></h3>
                 <span class="book-author"><strong>作者：</strong>%s</span>
                 <span class="book-publisher"><strong>出版社：</strong>%s</span>
                 %s
@@ -295,6 +296,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         </div>',
             htmlspecialchars($book['cover_url']),
             htmlspecialchars($book['title']),
+            htmlspecialchars($book['douban_id']),
             htmlspecialchars($book['title']),
             htmlspecialchars($book['author']),
             htmlspecialchars($book['publisher']),
