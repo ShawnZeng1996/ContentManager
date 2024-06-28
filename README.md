@@ -32,8 +32,8 @@ id为书籍页面显示的id（请注意不是豆瓣id），下面是一个示�
 [good list]
 ```
 以下是一个示例：
-<br/>
-<img src="./img/good-sample.png" style="max-width: 300px;"/>
+<br/><br/>
+<img src="./img/good-sample.png" width="320"/>
 ## 更新日志
 - 🍰 2024/06/11 v1.0
   - 插件第一版，支持了🎬电影、📚书籍、🛍️我的好物的管理。
