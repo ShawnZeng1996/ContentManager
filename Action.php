@@ -214,7 +214,7 @@ class ContentManager_Action extends Typecho_Widget implements Widget_Interface_D
         $this->on($this->request->is('content-type=movie&do=insert'))->insertMovie();
         $this->on($this->request->is('content-type=movie&do=update'))->updateMovie();
         $this->on($this->request->is('content-type=movie&do=delete'))->deleteMovie();
-        // 处理电好物操作
+        // 处理好物操作
         $this->on($this->request->is('content-type=good&do=insert'))->insertGood();
         $this->on($this->request->is('content-type=good&do=update'))->updateGood();
         $this->on($this->request->is('content-type=good&do=delete'))->deleteGood();
