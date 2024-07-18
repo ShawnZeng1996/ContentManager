@@ -85,7 +85,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         Helper::addAction('movies-edit','ContentManager_Action');
         Helper::addAction('goods-edit','ContentManager_Action');
         // 注册内容解析钩子
-        Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('ContentManager_Plugin', 'parseContentShortcode');
+        Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx_66 = array('ContentManager_Plugin', 'parseContentShortcode');
         // 插件激活时加载CSS
         Typecho_Plugin::factory('Widget_Archive')->header = array('ContentManager_Plugin', 'addCss');
 
