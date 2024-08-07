@@ -33,10 +33,11 @@ class ContentManager_Action extends Typecho_Widget implements Widget_Interface_D
     // 插入书籍信息
     public function insertBook()
     {
-        $book = $this->request->from('title', 'author', 'publisher', 'subtitle', 'origin_title', 'translator', 'pubdate', 'cover_url', 'douban_id', 'rating');
+        $book = $this->request->from('title', 'author', 'publisher', 'subtitle', 'origin_title', 'translator', 'pubdate', 'cover_url', 'douban_id', 'read_date', 'rating', 'description');
         // 参数验证和过滤
         $book = array_map('trim', $book);
         $book['rating'] = (float)$book['rating'];
+
         try {
             $this->db->query($this->db->insert($this->prefix . 'books')->rows($book));
             $this->widget('Widget_Notice')->set(_t('书籍 %s 已经被增加', $book['title']), null, 'success');
@@ -49,7 +50,7 @@ class ContentManager_Action extends Typecho_Widget implements Widget_Interface_D
     // 更新书籍信息
     public function updateBook()
     {
-        $book = $this->request->from('id', 'title', 'author', 'publisher', 'subtitle', 'origin_title', 'translator', 'pubdate', 'cover_url', 'douban_id', 'rating');
+        $book = $this->request->from('id', 'title', 'author', 'publisher', 'subtitle', 'origin_title', 'translator', 'pubdate', 'cover_url', 'douban_id', 'read_date', 'rating', 'description');
         // 参数验证和过滤
         $book = array_map('trim', $book);
         $book['id'] = (int)$book['id'];

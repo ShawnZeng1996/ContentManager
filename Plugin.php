@@ -1,5 +1,13 @@
 <?php
 
+namespace TypechoPlugin\ContentManager;
+
+use Typecho\Db\Exception;
+use Typecho\Plugin\PluginInterface;
+use Typecho\Widget\Helper\Form;
+use Typecho\Db;
+use Utils\Helper;
+
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 
 /**
@@ -7,21 +15,32 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
  *
  * @package ContentManager
  * @author Shawn
- * @version 1.0.0
+ * @version 1.1.0
  * @link https://shawnzeng.com
  */
-class ContentManager_Plugin implements Typecho_Plugin_Interface
+class Plugin implements PluginInterface
 {
+    public static string $bookPanel = 'ContentManager/manage-books.php';
+    public static string $moviePanel = 'ContentManager/manage-movies.php';
+    public static string $goodPanel = 'ContentManager/manage-goods.php';
+
+    /**
+     * 激活插件方法,如果激活失败,直接抛出异常
+     *
+     * @access public
+     * @return string
+     * @throws Exception
+     */
     public static function activate()
     {
-        $db = Typecho_Db::get();
+        $db = Db::get();
         $prefix = $db->getPrefix();
 
         // 检查是否已有书籍表
         $sql = "SHOW TABLES LIKE '{$prefix}books'";
         $result = $db->fetchRow($sql);
         if (!$result) {
-            // 创建书籍表
+            // 创建书籍表，并添加 description 字段
             $sql = "CREATE TABLE IF NOT EXISTS `{$prefix}books` (
                 `id` INT NOT NULL AUTO_INCREMENT,
                 `title` VARCHAR(255) NOT NULL,
@@ -33,10 +52,28 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
                 `pubdate` VARCHAR(255) NOT NULL,
                 `cover_url` VARCHAR(255) NOT NULL,
                 `douban_id` VARCHAR(255),
+                `read_date` DATE NOT NULL,
                 `rating` FLOAT NOT NULL,
+                `description` TEXT,
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
             $db->query($sql);
+        } else {
+            // 检查 description 字段是否存在
+            $sql = "SHOW COLUMNS FROM `{$prefix}books` LIKE 'description'";
+            $descriptionField = $db->fetchRow($sql);
+            if (!$descriptionField) {
+                // 如果 description 字段不存在，则添加该字段
+                $sql = "ALTER TABLE `{$prefix}books` ADD `description` TEXT";
+                $db->query($sql);
+            }
+            // 检查 description 字段是否存在
+            $sql = "SHOW COLUMNS FROM `{$prefix}books` LIKE 'read_date'";
+            $readDateField = $db->fetchRow($sql);
+            if ($readDateField) {
+                $sql = "ALTER TABLE `{$prefix}books` ADD `read_date` DATE NOT NULL AFTER `douban_id`";
+                $db->query($sql);
+            }
         }
 
         // 检查是否已有电影表
@@ -53,9 +90,19 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
                 `image_url` VARCHAR(255) NOT NULL,
                 `douban_id` VARCHAR(255),
                 `rating` FLOAT NOT NULL,
+                `description` TEXT,
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
             $db->query($sql);
+        } else {
+            // 检查 description 字段是否存在
+            $sql = "SHOW COLUMNS FROM `{$prefix}movies` LIKE 'description'";
+            $descriptionField = $db->fetchRow($sql);
+            if (!$descriptionField) {
+                // 如果 description 字段不存在，则添加该字段
+                $sql = "ALTER TABLE `{$prefix}movies` ADD `description` TEXT";
+                $db->query($sql);
+            }
         }
 
         // 检查是否已有物品表
@@ -76,39 +123,74 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             $db->query($sql);
         }
 
-
-
-        Helper::addPanel(3, 'ContentManager/manage-books.php', '书籍', '管理书籍', 'administrator');
-        Helper::addPanel(3, 'ContentManager/manage-movies.php', '电影', '管理电影', 'administrator');
-        Helper::addPanel(3, 'ContentManager/manage-goods.php', '好物', '管理我的好物', 'administrator');
+        Helper::addPanel(3, self::$bookPanel, '书籍', '管理书籍', 'administrator');
+        Helper::addPanel(3, self::$moviePanel, '电影', '管理电影', 'administrator');
+        Helper::addPanel(3, self::$goodPanel, '好物', '管理我的好物', 'administrator');
         Helper::addAction('books-edit','ContentManager_Action');
         Helper::addAction('movies-edit','ContentManager_Action');
         Helper::addAction('goods-edit','ContentManager_Action');
         // 注册内容解析钩子
-        Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx_66 = array('ContentManager_Plugin', 'parseContentShortcode');
+        \Typecho\Plugin::factory('Widget_Abstract_Contents')->contentEx_66 = __CLASS__ .'::parseContentShortcode';
         // 插件激活时加载CSS
-        Typecho_Plugin::factory('Widget_Archive')->header = array('ContentManager_Plugin', 'addCss');
+        \Typecho\Plugin::factory('Widget_Archive')->header = __CLASS__ . '::addCss';
 
         return _t('ContentManager 插件已激活');
     }
 
+    /**
+     * 禁用插件方法,如果禁用失败,直接抛出异常
+     *
+     * @static
+     * @access public
+     * @return void
+     */
     public static function deactivate()
     {
-        Helper::removePanel(3, 'ContentManager/manage-books.php');
-        Helper::removePanel(3, 'ContentManager/manage-movies.php');
-        Helper::removePanel(3, 'ContentManager/manage-goods.php');
+        Helper::removePanel(3, self::$bookPanel);
+        Helper::removePanel(3, self::$moviePanel);
+        Helper::removePanel(3, self::$goodPanel);
         Helper::removeAction('books-edit');
         Helper::removeAction('movies-edit');
         Helper::removeAction('goods-edit');
         return _t('ContentManager 插件已禁用');
     }
 
-    public static function config(Typecho_Widget_Helper_Form $form)
+    /**
+     * 获取插件配置面板
+     *
+     * @access public
+     * @param Form $form 配置面板
+     * @return void
+     */
+    public static function config(Form $form)
     {
-
+        $doubanApiKey = new Form\Element\Text(
+            'doubanApiKey',
+            null,
+            '0ab215a8b1977939201640fa14c66bab',
+            _t('豆瓣API Key'),
+            _t('豆瓣API Key，如果有其他Key也可以填写，没有则使用插件作者提供的Key，请勿随便更改'),
+        );
+        $form->addInput($doubanApiKey);
+        $defaultBg = new Form\Element\Text(
+            'defaultBg',
+            null,
+            '#ededed',
+            _t('默认背景色'),
+            _t('默认各卡片的背景色'),
+        );
+        $form->addInput($defaultBg);
+        $darkBg = new Form\Element\Text(
+            'darkBg',
+            null,
+            'hsla(0,0%,100%,.1)',
+            _t('深色模式背景色'),
+            _t('深色模式各卡片的背景色'),
+        );
+        $form->addInput($darkBg);
     }
 
-    public static function personalConfig(Typecho_Widget_Helper_Form $form)
+    public static function personalConfig(Form $form)
     {
     }
 
@@ -128,6 +210,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
      * @param $widget
      * @param $last
      * @return array|string|string[]|null
+     * @throws Exception
      */
     public static function parseContentShortcode($content, $widget, $last)
     {
@@ -135,7 +218,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         // 匹配电影短代码 [movie id=1,2,3]
         $content = preg_replace_callback('/\[movie id=([\d,]+)\]/', function($matches) {
             $ids = explode(',', $matches[1]);
-            $db = Typecho_Db::get();
+            $db = Db::get();
             $prefix = $db->getPrefix();
             $html = '';
 
@@ -159,7 +242,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         // 匹配书籍短代码 [book id=1,2,3]
         $content = preg_replace_callback('/\[book id=([\d,]+)\]/', function($matches) {
             $ids = explode(',', $matches[1]);
-            $db = Typecho_Db::get();
+            $db = Db::get();
             $prefix = $db->getPrefix();
             $html = '';
 
@@ -182,7 +265,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
 
         // 匹配好物短代码 [good id=1,2,3] 和 [good list]
         $content = preg_replace_callback('/\[good(?: id=([\d,]+)| list)\]/', function($matches) {
-            $db = Typecho_Db::get();
+            $db = Db::get();
             $prefix = $db->getPrefix();
             $html = '';
 
@@ -273,7 +356,7 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
         $translator = !empty($book['translator']) ? '<span class="book-translator"><strong>译者：</strong>' . htmlspecialchars($book['translator']) . '</span>' : '';
 
         return sprintf(
-            '<div class="book-item">
+            '<div class="book-item" id="bool-item-%s">
             <img src="%s" alt="%s" class="book-img" referrerpolicy="no-referrer" />
             <div class="book-info">
                 <h3 class="book-title">%s</h3>
@@ -291,8 +374,10 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
                     </div>
                     %s
                 </div>
+                <div class="book-description"><strong>简介：</strong>%s</div>
             </div>
         </div>',
+            htmlspecialchars($book['id']),
             htmlspecialchars($book['cover_url']),
             htmlspecialchars($book['title']),
             htmlspecialchars($book['title']),
@@ -303,7 +388,8 @@ class ContentManager_Plugin implements Typecho_Plugin_Interface
             $translator,
             htmlspecialchars($book['pubdate']),
             htmlspecialchars($ratingPercentage),
-            htmlspecialchars($book['rating'])
+            htmlspecialchars($book['rating']),
+            htmlspecialchars($book['description'])
         );
     }
 
