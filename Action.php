@@ -87,7 +87,7 @@ class ContentManager_Action extends Typecho_Widget implements Widget_Interface_D
     // 插入电影信息
     public function insertMovie()
     {
-        $movie = $this->request->from('name', 'douban_id', 'directors', 'actors', 'genres', 'image_url', 'rating');
+        $movie = $this->request->from('name', 'year', 'douban_id', 'watch_date', 'directors', 'actors', 'genres', 'image_url', 'rating', 'description');
         // 参数验证和过滤
         $movie = array_map('trim', $movie);
         $movie['rating'] = (float)$movie['rating'];
@@ -103,7 +103,7 @@ class ContentManager_Action extends Typecho_Widget implements Widget_Interface_D
     // 更新电影信息
     public function updateMovie()
     {
-        $movie = $this->request->from('id', 'name', 'douban_id', 'directors', 'actors', 'genres', 'image_url', 'rating');
+        $movie = $this->request->from('id', 'name', 'year', 'douban_id', 'watch_date', 'directors', 'actors', 'genres', 'image_url', 'rating', 'description');
         // 参数验证和过滤
         $movie = array_map('trim', $movie);
         $movie['id'] = (int)$movie['id'];

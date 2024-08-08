@@ -67,10 +67,10 @@ class Plugin implements PluginInterface
                 $sql = "ALTER TABLE `{$prefix}books` ADD `description` TEXT";
                 $db->query($sql);
             }
-            // 检查 description 字段是否存在
+            // 检查 read_date 字段是否存在
             $sql = "SHOW COLUMNS FROM `{$prefix}books` LIKE 'read_date'";
             $readDateField = $db->fetchRow($sql);
-            if ($readDateField) {
+            if (!$readDateField) {
                 $sql = "ALTER TABLE `{$prefix}books` ADD `read_date` DATE NOT NULL AFTER `douban_id`";
                 $db->query($sql);
             }
@@ -84,11 +84,13 @@ class Plugin implements PluginInterface
             $sql = "CREATE TABLE IF NOT EXISTS `{$prefix}movies` (
                 `id` INT NOT NULL AUTO_INCREMENT,
                 `name` VARCHAR(255) NOT NULL,
+                `year` VARCHAR(20),
                 `directors` TEXT NOT NULL,
                 `actors` TEXT NOT NULL,
                 `genres` TEXT NOT NULL,
                 `image_url` VARCHAR(255) NOT NULL,
                 `douban_id` VARCHAR(255),
+                `watch_date` DATE NOT NULL,
                 `rating` FLOAT NOT NULL,
                 `description` TEXT,
                 PRIMARY KEY (`id`)
@@ -101,6 +103,20 @@ class Plugin implements PluginInterface
             if (!$descriptionField) {
                 // 如果 description 字段不存在，则添加该字段
                 $sql = "ALTER TABLE `{$prefix}movies` ADD `description` TEXT";
+                $db->query($sql);
+            }
+            // 检查 watch_date 字段是否存在
+            $sql = "SHOW COLUMNS FROM `{$prefix}movies` LIKE 'watch_date'";
+            $readDateField = $db->fetchRow($sql);
+            if (!$readDateField) {
+                $sql = "ALTER TABLE `{$prefix}movies` ADD `watch_date` DATE NOT NULL AFTER `douban_id`";
+                $db->query($sql);
+            }
+            // 检查 year 字段是否存在
+            $sql = "SHOW COLUMNS FROM `{$prefix}movies` LIKE 'year'";
+            $readDateField = $db->fetchRow($sql);
+            if (!$readDateField) {
+                $sql = "ALTER TABLE `{$prefix}movies` ADD `year` VARCHAR(20) AFTER `name`";
                 $db->query($sql);
             }
         }
@@ -164,6 +180,7 @@ class Plugin implements PluginInterface
      */
     public static function config(Form $form)
     {
+        /*
         $doubanApiKey = new Form\Element\Text(
             'doubanApiKey',
             null,
@@ -188,6 +205,7 @@ class Plugin implements PluginInterface
             _t('深色模式各卡片的背景色'),
         );
         $form->addInput($darkBg);
+        */
     }
 
     public static function personalConfig(Form $form)
@@ -313,83 +331,87 @@ class Plugin implements PluginInterface
         return $content;
     }
 
-    private static function buildMovieHtml($movie)
+    private static function buildMovieHtml($movie): string
     {
         $rating = floatval($movie['rating']);
         $ratingPercentage = ($rating / 10) * 100;
+        $description = !empty($movie['description']) ? '<div class="movie-description"><strong>简介：</strong>' . htmlspecialchars($movie['description']) . '</div>' : '';
 
         return sprintf(
             '<div class="movie-item">
-            <img src="%s" alt="%s" class="movie-img" referrerpolicy="no-referrer" />
-            <div class="movie-info">
-                <h3 class="movie-name">%s</h3>
-                <span class="movie-directors"><strong>导演：</strong>%s</span>
-                <span class="movie-actors"><strong>演员：</strong>%s</span>
-                <span class="movie-genres"><strong>分类：</strong>%s</span>
-                <div class="movie-rating"><strong>评分：</strong>
-                    <div class="rating">
-                        <div class="stars-outer">
-                            <div class="stars-inner" style="width:%s%%;"></div>
+                        <img src="%s" alt="%s" class="movie-img" referrerpolicy="no-referrer" />
+                        <div class="movie-info">
+                            <h3 class="movie-name">%s</h3>
+                            <div class="movie-rating"><strong>评分：</strong>
+                                <div class="rating">
+                                    <div class="stars-outer">
+                                        <div class="stars-inner" style="width:%s%%;"></div>
+                                    </div>
+                                </div>
+                                %s
+                            </div>
+                            <span class="movie-directors"><strong>导演：</strong>%s</span>
+                            <span class="movie-actors"><strong>演员：</strong>%s</span>
+                            <span class="movie-genres"><strong>分类：</strong>%s</span>
+                            %s
                         </div>
-                    </div>
-                    %s
-                </div>
-            </div>
-        </div>',
+                    </div>',
             htmlspecialchars($movie['image_url']),
             htmlspecialchars($movie['name']),
             htmlspecialchars($movie['name']),
+            htmlspecialchars($ratingPercentage),
+            htmlspecialchars($movie['rating']),
             htmlspecialchars($movie['directors']),
             htmlspecialchars($movie['actors']),
             htmlspecialchars($movie['genres']),
-            htmlspecialchars($ratingPercentage),
-            htmlspecialchars($movie['rating'])
+            $description
         );
     }
 
-    private static function buildBookHtml($book)
+    private static function buildBookHtml($book): string
     {
         $rating = floatval($book['rating']);
         $ratingPercentage = ($rating / 10) * 100;
         $subtitle = !empty($book['subtitle']) ? '<span class="book-subtitle"><strong>副标题：</strong>' . htmlspecialchars($book['subtitle']) . '</span>' : '';
         $originTitle = !empty($book['origin_title']) ? '<span class="book-origin-title"><strong>原作名：</strong>' . htmlspecialchars($book['origin_title']) . '</span>' : '';
         $translator = !empty($book['translator']) ? '<span class="book-translator"><strong>译者：</strong>' . htmlspecialchars($book['translator']) . '</span>' : '';
+        $description = !empty($book['description']) ? '<div class="book-description"><strong>简介：</strong>' . htmlspecialchars($book['description']) . '</div>' : '';
 
         return sprintf(
             '<div class="book-item" id="bool-item-%s">
-            <img src="%s" alt="%s" class="book-img" referrerpolicy="no-referrer" />
-            <div class="book-info">
-                <h3 class="book-title">%s</h3>
-                <span class="book-author"><strong>作者：</strong>%s</span>
-                <span class="book-publisher"><strong>出版社：</strong>%s</span>
-                %s
-                %s
-                %s
-                <span class="book-pubdate"><strong>出版年：</strong>%s</span>
-                <div class="book-rating"><strong>评分：</strong>
-                    <div class="rating">
-                        <div class="stars-outer">
-                            <div class="stars-inner" style="width:%s%%;"></div>
+                        <img src="%s" alt="%s" class="book-img" referrerpolicy="no-referrer" />
+                        <div class="book-info">
+                            <h3 class="book-title">%s</h3>
+                            %s
+                            <div class="book-rating"><strong>评分：</strong>
+                                <div class="rating">
+                                    <div class="stars-outer">
+                                        <div class="stars-inner" style="width:%s%%;"></div>
+                                    </div>
+                                </div>
+                                %s
+                            </div>
+                            <span class="book-author"><strong>作者：</strong>%s</span>
+                            <span class="book-publisher"><strong>出版社：</strong>%s</span>
+                            %s
+                            %s
+                            <span class="book-pubdate"><strong>出版年：</strong>%s</span>
+                            %s
                         </div>
-                    </div>
-                    %s
-                </div>
-                <div class="book-description"><strong>简介：</strong>%s</div>
-            </div>
-        </div>',
+                    </div>',
             htmlspecialchars($book['id']),
             htmlspecialchars($book['cover_url']),
             htmlspecialchars($book['title']),
             htmlspecialchars($book['title']),
+            $subtitle,
+            htmlspecialchars($ratingPercentage),
+            htmlspecialchars($book['rating']),
             htmlspecialchars($book['author']),
             htmlspecialchars($book['publisher']),
-            $subtitle,
             $originTitle,
             $translator,
             htmlspecialchars($book['pubdate']),
-            htmlspecialchars($ratingPercentage),
-            htmlspecialchars($book['rating']),
-            htmlspecialchars($book['description'])
+            $description
         );
     }
 
@@ -403,16 +425,16 @@ class Plugin implements PluginInterface
 
         return sprintf(
             '<div class="good-item">
-            <div class="good-img">
-                <img src="%s" alt="%s" />
-            </div>
-            <div class="good-meta">
-                <div class="good-brand good-category">%s · %s</div>
-                <div class="good-name">%s
-                    <span class="good-price good-specification">%s%s</span>
-                </div> 
-            </div>
-        </div>',
+                        <div class="good-img">
+                            <img src="%s" alt="%s" />
+                        </div>
+                        <div class="good-meta">
+                            <div class="good-brand good-category">%s · %s</div>
+                            <div class="good-name">%s
+                                <span class="good-price good-specification">%s%s</span>
+                            </div> 
+                        </div>
+                    </div>',
             htmlspecialchars($good['image_url']),
             htmlspecialchars($good['name']),
             htmlspecialchars($good['brand']),

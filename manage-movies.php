@@ -18,7 +18,22 @@ $db = Typecho_Db::get(); // 确保数据库对象的初始化
 include 'header.php';
 include 'menu.php';
 ?>
-
+<style>
+    .year, .douban-id {
+        font-size: .92857em;
+        color: #999;
+    }
+    input[type="date"] {
+        background: #FFF;
+        border: 1px solid #D9D9D6;
+        padding: 7px;
+        border-radius: 2px;
+        box-sizing: border-box;
+    }
+    .typecho-option label.typecho-label {
+        margin: .25em 0;
+    }
+</style>
 <div class="main">
     <div class="body container">
         <?php include 'page-title.php'; ?>
@@ -82,23 +97,25 @@ include 'menu.php';
                                         <td><?php if ($movie['image_url']) { ?>
                                                 <img src="<?php echo $movie['image_url']; ?>" referrerpolicy="no-referrer" style="max-width: 50px; max-height: 80px;"/>
                                             <?php } ?></td>
-                                        <td><?php echo $movie['name']; ?></td>
-                                        <td><?php echo $movie['id'] . ' | ' . $movie['douban_id']; ?></td>
+                                        <td>
+                                            <?php echo $movie['name'];
+                                            if ($movie['year']) {
+                                                echo '<br><span class="year">' . $movie['year'] . '</span>';
+                                            } ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $movie['id'] ;
+                                            if ($movie['douban_id']) {
+                                                echo '<br><span class="douban-id">' . $movie['douban_id'] . '</span>';
+                                            }
+                                            ?>
+                                        </td>
                                         <td><?php echo $movie['directors']; ?></td>
                                         <td><?php echo $movie['actors']; ?></td>
                                         <td><?php echo $movie['genres']; ?></td>
                                         <td><?php echo $movie['rating']; ?></td>
                                         <td>
-                                            <button type="button" class="btn primary" onclick="editMovie(
-                                                    '<?php echo $movie['id']; ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($movie['name'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($movie['douban_id'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($movie['directors'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($movie['actors'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($movie['genres'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($movie['image_url'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($movie['rating'])); ?>'
-                                                    )"><?php _e('编辑'); ?></button>
+                                            <a href="<?php echo $request->makeUriByRequest('id=' . $movie['id']); ?>"><?php _e('编辑'); ?></a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -130,6 +147,10 @@ include 'menu.php';
                                 <input type="text" id="name" name="name" class="text" required />
                             </li>
                             <li>
+                                <label for="year" class="typecho-label"><?php _e('年份'); ?></label>
+                                <input type="text" id="year" name="year" class="text" />
+                            </li>
+                            <li>
                                 <label for="directors" class="typecho-label"><?php _e('导演*'); ?></label>
                                 <input type="text" id="directors" name="directors" class="text" required />
                             </li>
@@ -148,8 +169,16 @@ include 'menu.php';
                                 <img id="preview-image" src="" alt="Image Preview" referrerpolicy="no-referrer" style="width: 100px; display: none;">
                             </li>
                             <li>
+                                <label for="watch_date" class="typecho-label"><?php _e('观影日期*'); ?></label>
+                                <input type="date" name="watch_date" id="watch_date" value="<?php echo date('Y-m-d'); ?>" required>
+                            </li>
+                            <li>
                                 <label for="rating" class="typecho-label"><?php _e('评分*'); ?></label>
                                 <input type="number" step="0.1" id="rating" name="rating" class="text" style="background: #FFF;border: 1px solid #D9D9D6;padding: 7px;border-radius: 2px;box-sizing: border-box;" required />
+                            </li>
+                            <li>
+                                <label for="description" class="typecho-label"><?php _e('简介'); ?></label>
+                                <textarea name="description" id="description"></textarea>
                             </li>
                         </ul>
                         <button type="submit" class="btn primary"><?php _e('保存'); ?></button>
@@ -180,25 +209,27 @@ include 'common-js.php';
                 menuEl: '.dropdown-menu'
             });
 
-            <?php if (isset($request->id)): ?>
+            <?php if (isset($request->id)) {
+            $movie = $db->fetchRow($db->select()->from($prefix . 'movies')->where('id = ?', $request->id));
+            ?>
             $('.typecho-mini-panel').effect('highlight', '#AACB36');
-            <?php endif; ?>
+            document.getElementById('movie-id').value = '<?php echo $movie["id"] ?>';
+            document.getElementById('action').value = 'update';
+            document.getElementById('name').value = '<?php echo htmlspecialchars($movie["name"]); ?>';
+            document.getElementById('year').value = '<?php echo $movie["year"] ?>';
+            document.getElementById('directors').value = '<?php echo htmlspecialchars($movie["directors"]); ?>';
+            document.getElementById('actors').value = '<?php echo htmlspecialchars($movie["actors"]); ?>';
+            document.getElementById('genres').value = '<?php echo htmlspecialchars($movie["genres"]); ?>';
+            document.getElementById('image_url').value = '<?php echo htmlspecialchars($movie["image_url"]);  ?>';
+            document.getElementById('preview-image').src = '<?php echo htmlspecialchars($movie["image_url"]);  ?>';
+            document.getElementById('preview-image').style.display = 'block';
+            document.getElementById('douban_id').value = '<?php echo $movie["douban_id"] ?>';
+            document.getElementById('watch_date').value = '<?php echo $movie["watch_date"] ?>';
+            document.getElementById('rating').value = '<?php echo $movie["rating"] ?>';
+            document.getElementById('description').value = `<?php echo htmlspecialchars($movie["description"]);  ?>`;
+            <?php } ?>
         });
     })();
-
-    function editMovie(id, name, douban_id, directors, actors, genres, image_url, rating) {
-        document.getElementById('movie-id').value = id;
-        document.getElementById('action').value = 'update';
-        document.getElementById('name').value = name;
-        document.getElementById('douban_id').value = douban_id;
-        document.getElementById('directors').value = directors;
-        document.getElementById('actors').value = actors;
-        document.getElementById('genres').value = genres;
-        document.getElementById('image_url').value = image_url;
-        document.getElementById('preview-image').src = image_url;
-        document.getElementById('preview-image').style.display = 'block';
-        document.getElementById('rating').value = rating;
-    }
 
     function uploadImage(input) {
         var formData = new FormData();
@@ -238,12 +269,13 @@ include 'common-js.php';
                     alert('获取电影信息失败: ' + data.error);
                 } else {
                     document.getElementById('name').value = data.title || '';
+                    document.getElementById('year').value = data.year || '';
                     document.getElementById('directors').value = data.directors.map(d => d.name).join(' / ') || '';
                     document.getElementById('actors').value = data.casts.map(c => c.name).join(' / ') || '';
                     document.getElementById('genres').value = data.genres.join(' / ') || '';
                     document.getElementById('image_url').value = data.images.large || '';
                     document.getElementById('rating').value = data.rating.average || '';
-
+                    document.getElementById('description').value = data.summary || '';
                     // 更新图片预览
                     document.getElementById('preview-image').src = data.images.large || '';
                     document.getElementById('preview-image').style.display = data.images.large ? 'block' : 'none';
