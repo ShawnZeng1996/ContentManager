@@ -20,9 +20,9 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
  */
 class Plugin implements PluginInterface
 {
-    public static string $bookPanel = 'ContentManager/manage-books.php';
-    public static string $moviePanel = 'ContentManager/manage-movies.php';
-    public static string $goodPanel = 'ContentManager/manage-goods.php';
+    public static $bookPanel = 'ContentManager/manage-books.php';
+    public static $moviePanel = 'ContentManager/manage-movies.php';
+    public static $goodPanel = 'ContentManager/manage-goods.php';
 
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
