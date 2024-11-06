@@ -77,15 +77,20 @@
     align-items: center;
 }
 
+.good-list {
+    padding: 5px 0;
+}
+
 .good-item {
-    width: 32%;
-    min-width: 300px;
+    min-width: 280px;
+    flex: 1;
     position: relative;
     justify-content: center;
     background: #F6F6F6;
     padding: 50px 0 0;
     flex-direction: column;
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .good-img {
@@ -118,6 +123,7 @@
 
 .good-price {
     margin-left: auto;
+    font-size: 12px;
 }
 
 @media (max-width: 800px) {
@@ -130,5 +136,6 @@
 @media (max-width: 650px) {
     .good-item {
         width: 100%;
+        min-width: 100%;
     }
 }
