@@ -311,7 +311,7 @@ class Plugin implements PluginInterface
                 $html .= '</div>';
             } else {
                 // 获取所有好物信息
-                $query = $db->select()->from($prefix . 'goods')->order($prefix . 'goods.id', Typecho_Db::SORT_ASC);
+                $query = $db->select()->from($prefix . 'goods')->order($prefix . 'goods.id', \Typecho\Db::SORT_ASC);
                 $goods = $db->fetchAll($query);
                 if (!empty($goods)) {
                     $html .= '<div class="good-list">';
